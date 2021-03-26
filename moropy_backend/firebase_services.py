@@ -36,8 +36,7 @@ def get_user(userHash):
 
 def store_activity(userHash, activity):
     doc_ref = user_ref.document(f'{userHash}').collection('activity')
-    for i in range(len(activity)):
-        doc_ref.document().set(activity[i])
+    doc_ref.document().set(activity)
     return "working"
 
 
