@@ -1,19 +1,27 @@
-#! ./venv/bin/python3
+#/usr/bin/python3
+
+import sys
+import os
+
+PACKAGE_PARENT = '..'
+SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
+sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
 import datetime
 import json
 import os
 import pathlib
-import subprocess
-
 import click
 import requests
+import subprocess
+from moropy_cli.track import count
+
 
 root_dir = ""
+userId = ""
 credentials_file_name = "creds.json"
 status_file_name = "status"
-base_url = "https://kaal-backend.herokuapp.com"
-
+base_url = "https://kaalbackend.herokuapp.com/"
 
 def read_user_data():
 
@@ -24,6 +32,8 @@ def read_user_data():
         json_object = json.load(file)
         return json_object
 
+def sendCred():
+    return userId
 
 @click.command('register')
 def register_user():
@@ -32,6 +42,7 @@ def register_user():
     click.echo()
 
     code = click.prompt("🤫 Enter your secret code here", type=str)
+    userId = code
     click.echo()
 
     click.echo("⏱️  Please wait while I validate your code!")
@@ -98,9 +109,8 @@ def checkin():
     click.echo()
 
     click.echo("🧐 Getting some popcorn! 🍿 It's interesting to watch you work!")
-
-    subprocess.call("chmod +x ./ticker.py", shell=True)
-    subprocess.call("nohup ./ticker.py &", shell=True)
+    subprocess.call("python3 track.py", shell=True)
+    # subprocess.call("nohup ./ticker.py &", shell=True)
     # subprocess.call("nohup ./ticker.py >/dev/null 2>&1 &", shell=True)
 
 
@@ -196,3 +206,4 @@ init_cli.add_command(set_available)
 
 if __name__ == '__main__':
     init_cli()
+
