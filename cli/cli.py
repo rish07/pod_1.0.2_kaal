@@ -3,9 +3,6 @@
 import sys
 import os
 
-PACKAGE_PARENT = '..'
-SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
-sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
 import datetime
 import json
@@ -14,11 +11,8 @@ import pathlib
 import click
 import requests
 import subprocess
-from moropy_cli.track import count
-
 
 root_dir = ""
-userId = ""
 credentials_file_name = "creds.json"
 status_file_name = "status"
 base_url = "https://kaalbackend.herokuapp.com/"
@@ -32,20 +26,16 @@ def read_user_data():
         json_object = json.load(file)
         return json_object
 
-def sendCred():
-    return userId
-
 @click.command('register')
 def register_user():
 
-    click.echo("👋 Welcome to Kaal!")
+    click.echo("👋 Welcome to Kaal !")
     click.echo()
 
-    code = click.prompt("🤫 Enter your secret code here", type=str)
-    userId = code
+    code = click.prompt("Enter your secret code here", type=str)
     click.echo()
 
-    click.echo("⏱️  Please wait while I validate your code!")
+    click.echo("⏱️  Please wait while your code is being validated!")
     click.echo()
 
     credentials_file_path = os.path.join(root_dir, credentials_file_name)
@@ -57,12 +47,12 @@ def register_user():
     )
 
     if response.status_code == 401:
-        print("🤨 I found your token to be invalid. Please try again!")
+        print("🤨 Your token seems to be invalid. Please try again!")
         return
 
     if response.status_code != 200:
         print(
-            "🤯 I couldn't reach the Kaal servers. Please try again or contact the admin."
+            "🤯 I couldn't reach the servers. Please try again or contact the admin."
         )
         return
 
@@ -71,6 +61,7 @@ def register_user():
     user_data = {
         "userHash": code,
         "userName": response_data['user']['userName'],
+        "pid": "0",
     }
 
     click.secho("✅ Congratulations ", nl=False)
@@ -79,7 +70,7 @@ def register_user():
         nl=False,
     )
     click.echo("! Registration process is successful.\n")
-    click.echo("🥺 I can't wait to hear the checkin and checkout commands.")
+    click.echo("🥺 Can't wait to hear the checkin and checkout commands.")
 
     file_data = json.dumps(user_data, indent=4)
 
@@ -89,7 +80,7 @@ def register_user():
 
 @click.command('checkin')
 def checkin():
-
+    flag = 1
     user_data = read_user_data()
 
     click.echo()
@@ -107,9 +98,9 @@ def checkin():
     click.secho("{}:{}".format(hours, minutes), bold=True)
 
     click.echo()
-
+    tracker_path = os.path.dirname(os.path.abspath(__file__))+"/track.py"
     click.echo("🧐 Getting some popcorn! 🍿 It's interesting to watch you work!")
-    subprocess.call("python3 track.py", shell=True)
+    subprocess.call("python3 " + tracker_path+" &", shell=True)
     # subprocess.call("nohup ./ticker.py &", shell=True)
     # subprocess.call("nohup ./ticker.py >/dev/null 2>&1 &", shell=True)
 
@@ -137,17 +128,9 @@ def checkout():
     click.secho("{}:{}".format(hours, minutes), bold=True)
 
     click.echo()
-
-    if not os.path.exists(status_file_path):
-        print(status_file_path, "doesn't exist")
-        return
-
-    # writes close status to moropy.sh
-    with open(status_file_path, 'w') as file:
-        file.write("0")
-
+    subprocess.call("kill -9 "+ str(user_data['pid']),shell=True)
     click.echo("😌 Great work today! Going to sleep! Bye! 🙌")
-
+    
 
 @click.command('away')
 def set_away():
@@ -187,16 +170,14 @@ def set_available():
 
 @click.group()
 def init_cli():
-
-    user_home_dir = pathlib.Path.home()
+    user_home_dir = os.path.dirname(os.path.abspath(__file__))
 
     global root_dir
-    root_dir = pathlib.Path.joinpath(user_home_dir, ".moropy")
+    root_dir = os.path.dirname(os.path.abspath(__file__))
 
     if not os.path.exists(root_dir):
         os.mkdir(root_dir)
         click.echo("generated {}".format(root_dir))
-
 
 init_cli.add_command(register_user)
 init_cli.add_command(checkin)
