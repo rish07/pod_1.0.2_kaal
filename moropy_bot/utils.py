@@ -5,13 +5,14 @@ import requests
 logger = Logger(__name__)
 
 
-HOST_URL = 'https://kaal-backend.herokuapp.com'
+HOST_URL = 'https://kaalbackend.herokuapp.com'
 
 REGISTER_USER_ENDPOINT = '/register/'
 CHANNEL_WEBHOOK_ENDPOINT = '/channel/{}'
 USER_WEBHOOKS_ENDPOINT = '/storechannel'
 USER_VALIDATE_ENDPOINT = '/validatebot/'
 POD_DETAILS_ENDPOINT = '/summary/'
+USER_ACTIVITY_ENDPOINT = '/getuser'
 
 
 def _get_absolute_url(relative_url):
@@ -77,3 +78,8 @@ def get_pod_leaderboard(role):
         url=_get_absolute_url(POD_DETAILS_ENDPOINT), json={"role": str(role)}
     )
     return response.status_code, response.json().get('msg', None)
+
+
+def get_user_activity(userHash):
+    response = requests.post(url=_get_absolute_url(USER_ACTIVITY_ENDPOINT), json={'userHash': str(userHash)})
+    return response.json()

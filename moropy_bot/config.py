@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-TOKEN = os.getenv('DISCORD_BOT_TOKEN')
+TOKEN = "NzYzNjc3MzM2ODEzNDM2OTUw.X37L8Q.G2nvGDZqsnau2vrn6-4HrnqoiDM"
 SERVER_ID = os.getenv('DISCORD_SERVER_ID')
 
 LOADING_GIF_URL = (

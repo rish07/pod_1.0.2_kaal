@@ -1,5 +1,5 @@
 import datetime
-
+from quickchart import QuickChart
 import config
 import discord
 import utils
@@ -61,6 +61,49 @@ async def on_status_message(ctx):
             else:
                 message += f'{pod_member["userName"]} - :green_circle:'
         await current_channel.send(message)
+
+
+@bot.command(name='showchart', help='shows chart')
+async def get_chart(ctx):
+
+    activities = utils.get_user_activity('5febf4cd-cb92-44bd-aa7e-87f2fe789667')
+    print(activities)
+    qc = QuickChart()
+    qc.width = 1000
+    qc.height = 500
+    qc.device_pixel_ratio = 3.0
+    qc.config = {
+        "type": "bar",
+        "data": {
+            "labels": list(activities),
+            "datasets": [
+                {
+                    "label": "Punid's Activites",
+                    "backgroundColor": "rgb(54,162,235)",
+                    "borderColor": "rgb(54,162,235)",
+                    "borderWidth": 1,
+                    "data": list(activities.values())
+                },
+
+            ]
+        },
+        "options": {
+            "responsive": 'true',
+            "legend": {
+                "position": "top"
+            },
+            "title": {
+                "display": 'true',
+                "text": "Activities Recorded"
+            },
+            "plugins": {
+                "roundedBars": 'true'
+            }
+        }
+    }
+
+    url = qc.get_short_url()
+    await ctx.message.channel.send(url)
 
 
 @bot.command(name='register', help='Start user registration')
